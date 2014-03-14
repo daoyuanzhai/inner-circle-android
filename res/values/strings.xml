@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Entertainment Circle</string>
+    <string name="action_settings">Settings</string>
+    <string name="enterEmail">Please enter your email</string>
+    <string name="enterPassword">Please enter your password</string>
+    <string name="desc">Image Content Description</string>
+    <string name="goRegister">Register</string>
+    <string name="goLogin">Login</string>
+    <string name="register">Register</string>
+    <string name="login">Login</string>
+
+</resources>

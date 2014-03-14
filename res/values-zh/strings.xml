@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">娱乐圈</string>
+    <string name="action_settings">设置</string>
+    <string name="enterEmail">请输入您的电子邮箱</string>
+    <string name="enterPassword">请输入您的密码</string>
+    <string name="goRegister">新用户注册</string>
+    <string name="goLogin">返回登录</string>
+    <string name="register">注册</string>
+    <string name="login">登录</string>
+
+</resources>
