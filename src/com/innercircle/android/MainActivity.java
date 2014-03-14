@@ -58,4 +58,16 @@ public class MainActivity extends FragmentActivity {
         // Commit the transaction
         transaction.commit();
     }
+
+    public void onClickGoLogin(View v) {
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+        // Replace whatever is in the fragment_container view with this fragment,
+        // and add the transaction to the back stack so the user can navigate back
+        transaction.replace(R.id.layoutMainDetails, loginFragment);
+        // transaction.addToBackStack(null);
+
+        // Commit the transaction
+        transaction.commit();
+    }
 }
