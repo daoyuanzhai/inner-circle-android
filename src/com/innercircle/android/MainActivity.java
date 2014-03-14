@@ -1,26 +1,12 @@
 package com.innercircle.android;
 
-import android.graphics.Bitmap;
-import android.graphics.Point;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
-import android.view.Display;
 import android.view.View;
-import android.view.Window;
 import android.view.WindowManager;
-import android.widget.RelativeLayout;
-
-import com.innercircle.android.utils.ImageUtils;
 
 public class MainActivity extends FragmentActivity {
-    private static final String TAG = MainActivity.class.getSimpleName();
-    private RelativeLayout layoutMainBackround;
-    private Point screenSize;
-    private Drawable drawableBackground;
 
     private MainFragment loginFragment;
     private MainFragment registerFragment;
@@ -28,31 +14,11 @@ public class MainActivity extends FragmentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //Remove title bar
-        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-        // Remove notification bar
-        // this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
-        // Remove notification bar
+        // Remove automatic focus on the EditText
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
-        final Display display = getWindowManager().getDefaultDisplay();
-        screenSize = new Point();
-        display.getSize(screenSize);
-        Log.v(TAG, "Screen width: " + screenSize.x);
-        Log.v(TAG, "Screen height: " + screenSize.y);
-
-        final Bitmap background = ImageUtils.decodeSampledBitmapFromResource(getResources(),
-                R.drawable.pch_sunset_background, screenSize.x, screenSize.y);
-        Log.v(TAG, "Background width: " + background.getWidth());
-        Log.v(TAG, "Background height: " + background.getHeight());
-
-        drawableBackground = new BitmapDrawable(getResources(), background);
-
         setContentView(R.layout.activity_main);
-        layoutMainBackround = (RelativeLayout) findViewById(R.id.layoutMainBackground);
-        layoutMainBackround.setBackground(drawableBackground);
 
         loginFragment = new MainFragment();
         loginFragment.setLayoutId(R.layout.layout_login);
