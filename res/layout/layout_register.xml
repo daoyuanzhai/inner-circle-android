@@ -19,51 +19,78 @@
                android:layout_height="wrap_content"
                android:background="@null"
                android:layout_centerHorizontal="true"
+               android:layout_alignParentRight="true"
                android:contentDescription="@string/desc"/>
         <TextView
             android:id="@+id/textViewGoLogin"
             android:layout_below="@id/imageButtonGoLogin"
             android:layout_centerHorizontal="true"
+            android:layout_alignParentRight="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
+            android:textSize="14sp"
             android:text="@string/goLogin"/>
+
+        <TextView
+            android:id="@+id/textViewInvalidEmail"
+            android:visibility="invisible"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/textViewGoLogin"
+            android:paddingTop="10dp"
+            android:layout_centerHorizontal="true"
+            android:textColor="@color/opaque_red"
+            android:text="@string/invalidEmail"/>
 
         <EditText
             android:inputType="textEmailAddress"
-            android:id="@+id/editTextEmail"
+            android:id="@+id/editTextRegisterEmail"
             android:hint="@string/enterEmail"
             android:gravity="center"
             android:textSize="21sp"
             android:textColor="#000000"
-            android:layout_width="280dp"
+            android:layout_width="260dp"
             android:layout_height="wrap_content"
-            android:paddingTop="40dp"
-            android:layout_below="@id/textViewGoLogin"
-            android:layout_centerHorizontal="true"/>
+            android:paddingTop="25dp"
+            android:layout_below="@id/textViewInvalidEmail"
+            android:layout_centerHorizontal="true" />
 
         <EditText
             android:inputType="textPassword"
-            android:id="@+id/editTextPassword"
+            android:id="@+id/editTextRegisterPassword"
             android:hint="@string/enterPassword"
             android:gravity="center"
             android:textSize="21sp"
             android:textColor="#000000"
             android:layout_width="280dp"
             android:layout_height="wrap_content"
-            android:layout_below="@id/editTextEmail"
+            android:layout_below="@id/editTextRegisterEmail"
+            android:paddingTop="40dp"
+            android:layout_centerHorizontal="true"/>
+
+        <EditText
+            android:inputType="text"
+            android:id="@+id/editTextVIPCode"
+            android:hint="@string/enterVIPCode"
+            android:gravity="center"
+            android:textSize="21sp"
+            android:textColor="#000000"
+            android:layout_width="280dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/editTextRegisterPassword"
             android:paddingTop="40dp"
             android:layout_centerHorizontal="true"/>
 
         <ImageButton
                android:id="@+id/imageButtonRegister"
                android:src="@drawable/gentleman_icon"
+               android:onClick="onClickRegister"
                android:layout_width="wrap_content"
                android:layout_height="wrap_content"
                android:paddingTop="20dp"
                android:background="@null"
                android:layout_centerHorizontal="true"
-               android:layout_below="@id/editTextPassword"
+               android:layout_below="@id/editTextVIPCode"
                android:contentDescription="@string/desc"/>
         <TextView
             android:id="@+id/textViewRegister"
@@ -73,5 +100,15 @@
             android:layout_height="wrap_content"
             android:textSize="16sp"
             android:text="@string/register"/>
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyleLarge"
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true" />
     </RelativeLayout>
 </ScrollView>

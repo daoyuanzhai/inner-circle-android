@@ -3,12 +3,19 @@
 
     <string name="app_name">Entertainment Circle</string>
     <string name="action_settings">Settings</string>
-    <string name="enterEmail">Please enter your email</string>
-    <string name="enterPassword">Please enter your password</string>
     <string name="desc">Image Content Description</string>
+
+    <string name="enterEmail">Enter your email</string>
+    <string name="enterPassword">Enter your password</string>
+    <string name="enterVIPCode">Enter your VIP code</string>
+    <string name="enterUsername">Your username in this app</string>
+
     <string name="goRegister">Register</string>
     <string name="goLogin">Login</string>
+    <string name="goStart">Start</string>
+
     <string name="register">Register</string>
     <string name="login">Login</string>
 
+    <string name="invalidEmail">Not an email address, please try again.</string>
 </resources>
