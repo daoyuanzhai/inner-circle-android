@@ -49,11 +49,9 @@ public class HttpRequestUtils {
                 out.close();
 
                 final String responseString = out.toString();
-                Log.v(TAG, "Response: " + responseString);
-
                 return new JSONObject(responseString);
             } else {
-                Log.e(TAG, "Register service request didn't receive SC_OK status, closing connection...");
+                Log.e(TAG, request.getAPI() + " service request didn't receive SC_OK status, closing connection...");
                 response.getEntity().getContent().close();
                 throw new IOException(statusLine.getReasonPhrase());
             }
@@ -65,8 +63,16 @@ public class HttpRequestUtils {
 
     public static InnerCircleResponse registerRequest(InnerCircleRequest request) {
         final JSONObject responseJSON = fireRequest(request);
-        final InnerCircleResponse response = new InnerCircleResponse();
+        return parseJSONToToken(responseJSON);
+    }
 
+    public static InnerCircleResponse loginRequest(InnerCircleRequest request) {
+        final JSONObject responseJSON = fireRequest(request);
+        return parseJSONToToken(responseJSON);
+    }
+
+    private static InnerCircleResponse parseJSONToToken(JSONObject responseJSON) {
+        final InnerCircleResponse response = new InnerCircleResponse();
         if (null == responseJSON) {
             response.setStatus(InnerCircleResponse.Status.FAILED);
             return response;

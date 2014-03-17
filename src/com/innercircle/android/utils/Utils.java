@@ -3,9 +3,14 @@ package com.innercircle.android.utils;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+
+import com.innercircle.android.model.InnerCircleToken;
 
 public class Utils {
     private Utils() {}
@@ -48,8 +53,34 @@ public class Utils {
     }
 
     public static boolean isValidEmail(final String email) {
-        final Pattern p = Pattern.compile(".+@.+\\.[a-z]+");
+        final Pattern p = Pattern.compile("^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@" + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
         final Matcher m = p.matcher(email);
         return m.matches();
+    }
+
+    public static void saveTokenToPreferences(final Context context, final InnerCircleToken token) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.TOKEN_PREFERENCE, Context.MODE_PRIVATE);
+        Editor editor = sharedPreferences.edit();
+        editor.putString(Constants.UID, token.getUid());
+        editor.putString(Constants.ACCESS_TOKEN, token.getAccessToken());
+        editor.putString(Constants.REFRESH_TOKEN, token.getRefreshToken());
+        editor.putLong(Constants.TIMESTAMP, token.getTimestamp());
+        editor.commit();
+    }
+
+    public static InnerCircleToken getTokenFromPreferences(final Context context) {
+        final SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.TOKEN_PREFERENCE, Context.MODE_PRIVATE);
+        final String uid = sharedPreferences.getString(Constants.UID, null);
+        final String accessToken = sharedPreferences.getString(Constants.ACCESS_TOKEN, null);
+        final String refreshToken = sharedPreferences.getString(Constants.REFRESH_TOKEN, null);
+        final long timestamp = sharedPreferences.getLong(Constants.TIMESTAMP, 0);
+
+        final InnerCircleToken token = (new InnerCircleToken.Builder())
+                .setUid(uid)
+                .setAccessToken(accessToken)
+                .setRefreshToken(refreshToken)
+                .setTimestamp(timestamp)
+                .build();
+        return token;
     }
 }

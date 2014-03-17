@@ -18,4 +18,8 @@
     <string name="login">Login</string>
 
     <string name="invalidEmail">Not an email address, please try again.</string>
+    <string name="emailExists">This email is already registered, please try a different one.</string>
+    <string name="registerError">Register has failed, please check your internet and try again.</string>
+    <string name="loginError">Login has failed, please check your internet and try again.</string>
+    <string name="emailPasswordMismatch">The email and password do not match any of our records.</string>
 </resources>

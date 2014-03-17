@@ -7,6 +7,7 @@ public class Constants {
 
     // API names
     public static final String REGISTER_API = "register";
+    public static final String LOGIN_API = "login";
 
     // HTTP Request Params
     public static final String UID = "uid";
@@ -20,4 +21,7 @@ public class Constants {
     // HTTP Response Params
     public static final String STATUS = "status";
     public static final String DATA = "data";
+
+    // SharedPreferences
+    public static final String TOKEN_PREFERENCE = "tokenPreference";
 }
