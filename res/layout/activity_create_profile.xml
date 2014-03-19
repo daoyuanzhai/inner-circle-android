@@ -1,4 +1,4 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/scrollViewCreateProfile"
     android:layout_width="match_parent"
@@ -8,10 +8,24 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin" >
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
+        <ImageButton
+               android:id="@+id/imageButtonCreateProfile"
+               android:src="@drawable/pick_image"
+               android:onClick="onClickAddProfileImage"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:paddingTop="20dp"
+               android:background="@null"
+               android:layout_centerHorizontal="true"
+               android:contentDescription="@string/desc"/>
+        <TextView
+            android:id="@+id/textViewCreateProfile"
+            android:layout_below="@id/imageButtonCreateProfile"
+            android:layout_centerHorizontal="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:text="@string/selectProfileImage"/>
         <EditText
             android:inputType="text"
             android:id="@+id/editTextUsername"
@@ -21,27 +35,6 @@
             android:textColor="#000000"
             android:layout_width="280dp"
             android:layout_height="wrap_content"
-            android:paddingTop="60dp"
-            android:layout_centerHorizontal="true"/>
-
-
-        <ImageButton
-               android:id="@+id/imageButtonCreateProfile"
-               android:src="@drawable/lock_icon"
-               android:layout_width="wrap_content"
-               android:layout_height="wrap_content"
-               android:paddingTop="20dp"
-               android:background="@null"
-               android:layout_centerHorizontal="true"
-               android:layout_below="@id/editTextUsername"
-               android:contentDescription="@string/desc"/>
-        <TextView
-            android:id="@+id/textViewCreateProfile"
-            android:layout_below="@id/imageButtonCreateProfile"
             android:layout_centerHorizontal="true"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:text="@string/goStart"/>
-    </RelativeLayout>
-</ScrollView>
+            android:layout_alignParentBottom="true"/>
+</RelativeLayout>

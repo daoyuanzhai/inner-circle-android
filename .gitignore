@@ -11,6 +11,8 @@
 # Generated files
 bin/
 gen/
+project.properties
+.DS_Store
 
 # Gradle files
 .gradle/

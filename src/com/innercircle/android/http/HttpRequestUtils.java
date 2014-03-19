@@ -22,13 +22,12 @@ import com.innercircle.android.utils.Constants;
 
 public class HttpRequestUtils {
     private static final String TAG = HttpRequestUtils.class.getSimpleName();
-    private static final String SERVICES_CONSOLE = "http://192.168.0.5:8080/ServicesConsole/";
 
     private HttpRequestUtils () {
     }
 
     private static String urlBuilder(final String apiName) {
-        return SERVICES_CONSOLE + apiName;
+        return Constants.SERVICES_CONSOLE + apiName;
     }
 
     private static JSONObject fireRequest(final InnerCircleRequest request) {

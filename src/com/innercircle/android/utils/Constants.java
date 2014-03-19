@@ -10,6 +10,7 @@ public class Constants {
     public static final String LOGIN_API = "login";
 
     // HTTP Request Params
+    public static final String SERVICES_CONSOLE = "http://192.241.202.169:8080/ServicesConsole/";
     public static final String UID = "uid";
     public static final String ACCESS_TOKEN = "accessToken";
     public static final String REFRESH_TOKEN = "refreshToken";
@@ -24,4 +25,9 @@ public class Constants {
 
     // SharedPreferences
     public static final String TOKEN_PREFERENCE = "tokenPreference";
+
+    // Images
+    public static int REQUEST_PICTURE = 1;
+    public static int CROP_PICTURE = 2;
+    public static int REQUEST_CAMERA = 3;
 }

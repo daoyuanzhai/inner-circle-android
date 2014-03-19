@@ -21,4 +21,9 @@
     <string name="registerError">注册失败，请检查您的网络并再试一次</string>
     <string name="loginError">登录失败，请检查您的网络并再试一次</string>
     <string name="emailPasswordMismatch">电子邮箱和密码错误</string>
+
+    <string name="selectImage">选择图片</string>
+    <string name="selectProfileImage">添加头像</string>
+    <string name="existingPics">打开相册</string>
+    <string name="useCamera">使用相机</string>
 </resources>

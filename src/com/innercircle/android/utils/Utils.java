@@ -1,23 +1,28 @@
 package com.innercircle.android.utils;
 
+import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.Environment;
+import android.util.Log;
+import android.widget.Toast;
 
 import com.innercircle.android.model.InnerCircleToken;
 
 public class Utils {
+    private static final String TAG = Utils.class.getSimpleName();
     private Utils() {}
 
-    private static int calculateInSampleSize(
-            BitmapFactory.Options options,
-            int reqWidth, int reqHeight) {
+    private static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
         // Raw height and width of image
         final int height = options.outHeight;
         final int width = options.outWidth;
@@ -82,5 +87,28 @@ public class Utils {
                 .setTimestamp(timestamp)
                 .build();
         return token;
+    }
+
+    public static File createTemporaryFile(Context context, String part, String ext) throws Exception {
+        File tempDir= Environment.getExternalStorageDirectory();
+        tempDir=new File(tempDir.getAbsolutePath()+"/.temp/");
+        if(!tempDir.exists()) {
+            tempDir.mkdir();
+        }
+        return File.createTempFile(part, ext, tempDir);
+    }
+
+    public static Bitmap grabImageBitmap(Context context, Uri imageUri) {
+        context.getContentResolver().notifyChange(imageUri, null);
+        ContentResolver cr = context.getContentResolver();
+        Bitmap bitmap;
+        try {
+            bitmap = android.provider.MediaStore.Images.Media.getBitmap(cr, imageUri);
+            return bitmap;
+        } catch (Exception e) {
+            Toast.makeText(context, "Failed to load", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "Failed to load " + imageUri.toString() + ": " + e.toString());
+            return null;
+        }
     }
 }
