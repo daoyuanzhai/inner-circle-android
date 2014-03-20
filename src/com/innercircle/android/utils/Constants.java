@@ -3,11 +3,17 @@ package com.innercircle.android.utils;
 public class Constants {
     private Constants(){}
 
+    public enum Gender {
+        M, F
+    }
+
     public static final String LAYOUT_ID = "layoutId";
 
     // API names
     public static final String REGISTER_API = "register";
     public static final String LOGIN_API = "login";
+    public static final String REFRESH_ACCESS_TOKEN_API = "refreshAccessToken";
+    public static final String SET_GENDER_API = "setGender";
 
     // HTTP Request Params
     public static final String SERVICES_CONSOLE = "http://192.241.202.169:8080/ServicesConsole/";
@@ -18,6 +24,7 @@ public class Constants {
     public static final String EMAIL = "email";
     public static final String PASSWORD = "password";
     public static final String VIPCode = "VIPCode";
+    public static final String GENDER = "gender";
 
     // HTTP Response Params
     public static final String STATUS = "status";

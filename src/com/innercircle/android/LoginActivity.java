@@ -1,6 +1,5 @@
 package com.innercircle.android;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -8,7 +7,6 @@ import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -16,7 +14,6 @@ import android.widget.TextView;
 import com.innercircle.android.http.HttpRequestUtils;
 import com.innercircle.android.model.InnerCircleRequest;
 import com.innercircle.android.model.InnerCircleResponse;
-import com.innercircle.android.model.InnerCircleToken;
 import com.innercircle.android.thread.HandlerThreadPoolManager;
 import com.innercircle.android.utils.Constants;
 import com.innercircle.android.utils.Utils;
@@ -60,19 +57,16 @@ public class LoginActivity extends FragmentActivity {
                 final InnerCircleResponse.Status status = response.getStatus();
                 Log.v(TAG, "login response status: " + status.toString());
                 if (status == InnerCircleResponse.Status.SUCCESS) {
-                    final InnerCircleToken token = (InnerCircleToken) response.getData();
-                    Utils.saveTokenToPreferences(LoginActivity.this, token);
-
                     Intent registerIntent = new Intent(LoginActivity.this, CreateProfileActivity.class);
                     startActivity(registerIntent);
                 } else if (status == InnerCircleResponse.Status.EMAIL_PASSWORD_MISMATCH) {
                     textViewError.setText(R.string.emailPasswordMismatch);
                     textViewError.setVisibility(View.VISIBLE);
-                    hideSoftKeyboard();
+                    Utils.hideSoftKeyboard(LoginActivity.this, editTextLoginEmail);
                 } else {
                     textViewError.setText(R.string.loginError);
                     textViewError.setVisibility(View.VISIBLE);
-                    hideSoftKeyboard();
+                    Utils.hideSoftKeyboard(LoginActivity.this, editTextLoginEmail);
                 }
                 progressBar.setVisibility(View.GONE);
             }
@@ -104,7 +98,7 @@ public class LoginActivity extends FragmentActivity {
                             .setNameValuePair(Constants.EMAIL, email)
                             .setNameValuePair(Constants.PASSWORD, password)
                             .build();
-                    response = HttpRequestUtils.loginRequest(request);
+                    response = HttpRequestUtils.loginRequest(LoginActivity.this, request);
                     mainHandler.post(responseCallback);
                 }
             };
@@ -113,12 +107,7 @@ public class LoginActivity extends FragmentActivity {
         } else {
             textViewError.setText(R.string.invalidEmail);
             textViewError.setVisibility(View.VISIBLE);
-            hideSoftKeyboard();
+            Utils.hideSoftKeyboard(this, editTextLoginEmail);
         }
-    }
-
-    private void hideSoftKeyboard(){
-        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(editTextLoginEmail.getWindowToken(), 0);
     }
 }

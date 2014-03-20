@@ -9,6 +9,7 @@ import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -16,13 +17,23 @@ import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.camera.CropImageIntentBuilder;
 import com.android.camera.datastore.CropProfileImageAccesser;
 import com.android.camera.datastore.ImageUtils;
+import com.innercircle.android.http.HttpRequestUtils;
+import com.innercircle.android.model.InnerCircleRequest;
+import com.innercircle.android.model.InnerCircleResponse;
 import com.innercircle.android.model.InnerCircleToken;
+import com.innercircle.android.thread.HandlerThreadPoolManager;
 import com.innercircle.android.utils.Constants;
 import com.innercircle.android.utils.MediaStoreUtils;
 import com.innercircle.android.utils.Utils;
@@ -39,6 +50,18 @@ public class CreateProfileActivity extends FragmentActivity{
 
     private Point screenSize;
 
+    private CheckBox checkBoxMale;
+    private CheckBox checkBoxFemale;
+    private TextView textViewError;
+    private EditText editTextUsername;
+    private ProgressBar progressBar;
+
+    private Handler mainHandler;
+    private HandlerThreadPoolManager handlerThreadPoolManager;
+    private InnerCircleResponse response;
+    private Runnable responseCallback;
+
+    private Constants.Gender gender;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,6 +78,51 @@ public class CreateProfileActivity extends FragmentActivity{
         imageButtonProfile = (ImageButton) findViewById(R.id.imageButtonCreateProfile);
         getScreenSize();
         cropImage = new CropImageIntentBuilder(screenSize.x/4, screenSize.x/4);
+
+        checkBoxMale = (CheckBox) findViewById(R.id.checkBoxMale);
+        checkBoxFemale = (CheckBox) findViewById(R.id.checkBoxFemale);
+        textViewError = (TextView) findViewById(R.id.textViewGoAppError);
+        editTextUsername = (EditText) findViewById(R.id.editTextUsername);
+
+        final OnCheckedChangeListener listener = new OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton arg0, boolean isChecked) {
+                if(isChecked){
+                    switch(arg0.getId()) {
+                    case R.id.checkBoxMale:
+                        checkBoxMale.setChecked(true);
+                        checkBoxFemale.setChecked(false);
+                        break;
+                    case R.id.checkBoxFemale:
+                        checkBoxMale.setChecked(false);
+                        checkBoxFemale.setChecked(true);
+                        break;
+                    }
+                }
+            }
+        };
+        checkBoxMale.setOnCheckedChangeListener(listener);
+        checkBoxFemale.setOnCheckedChangeListener(listener);
+
+        progressBar = (ProgressBar) findViewById(R.id.progressBarCreateProfile);
+
+        mainHandler = new Handler(this.getMainLooper());
+        handlerThreadPoolManager = HandlerThreadPoolManager.getInstance();
+
+        responseCallback = new Runnable(){
+            @Override
+            public void run() {
+                final InnerCircleResponse.Status status = response.getStatus();
+                Log.v(TAG, "login response status: " + status.toString());
+                if (status == InnerCircleResponse.Status.SUCCESS) {
+                    Log.v(TAG, "set gender successful");
+                } else {
+                    textViewError.setText(R.string.createProfileError);
+                    textViewError.setVisibility(View.VISIBLE);
+                    Utils.hideSoftKeyboard(CreateProfileActivity.this, editTextUsername);
+                }
+                progressBar.setVisibility(View.GONE);
+            }
+        };
     }
 
     @Override
@@ -124,6 +192,42 @@ public class CreateProfileActivity extends FragmentActivity{
         });
         final AlertDialog dialog = builder.create();
         dialog.show();
+    }
+
+    public void onClickGoApp(View v) {
+        if (checkBoxMale.isChecked()) {
+            gender = Constants.Gender.M;
+        } else if (checkBoxFemale.isChecked()) {
+            gender = Constants.Gender.F;
+        } else {
+            textViewError.setText(getResources().getString(R.string.genderEmpty));
+            textViewError.setVisibility(View.VISIBLE);
+            return;
+        }
+
+        final String username = editTextUsername.getText().toString();
+        if (username.isEmpty()) {
+            textViewError.setText(getResources().getString(R.string.nicknameEmpty));
+            textViewError.setVisibility(View.VISIBLE);
+            Utils.hideSoftKeyboard(this, editTextUsername);
+            return;
+        }
+
+        final Runnable registerRunnable = new Runnable(){
+            @Override
+            public void run(){
+                final InnerCircleRequest request = (new InnerCircleRequest.Builder())
+                        .setAPI(Constants.SET_GENDER_API)
+                        .setNameValuePair(Constants.UID, token.getUid())
+                        .setNameValuePair(Constants.ACCESS_TOKEN, token.getAccessToken())
+                        .setNameValuePair(Constants.GENDER, gender.toString())
+                        .build();
+                response = HttpRequestUtils.setGenderRequest(CreateProfileActivity.this, request);
+                mainHandler.post(responseCallback);
+            }
+        };
+        progressBar.setVisibility(View.VISIBLE);
+        handlerThreadPoolManager.submitToBack(registerRunnable);
     }
 
     private void getScreenSize() {

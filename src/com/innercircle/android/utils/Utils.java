@@ -14,6 +14,8 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.innercircle.android.model.InnerCircleToken;
@@ -110,5 +112,10 @@ public class Utils {
             Log.e(TAG, "Failed to load " + imageUri.toString() + ": " + e.toString());
             return null;
         }
+    }
+
+    public static void hideSoftKeyboard(final Context context, final EditText editText){
+        InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
     }
 }
