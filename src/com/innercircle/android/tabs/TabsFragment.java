@@ -72,7 +72,7 @@ public class TabsFragment extends Fragment implements OnTabChangeListener {
         final TextView textViewTabText = (TextView) indicator.findViewById(R.id.text);
         textViewTabText.setText(labelId);
         textViewTabText.setGravity(Gravity.CENTER_HORIZONTAL);
-        textViewTabText.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, iconId);
+        textViewTabText.setCompoundDrawablesWithIntrinsicBounds(0, iconId, 0, 0);
 
         TabSpec tabSpec = tabHost.newTabSpec(tag);
         
