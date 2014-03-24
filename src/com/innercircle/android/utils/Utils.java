@@ -6,8 +6,6 @@ import java.util.regex.Pattern;
 
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -17,8 +15,6 @@ import android.util.Log;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.Toast;
-
-import com.innercircle.android.model.InnerCircleToken;
 
 public class Utils {
     private static final String TAG = Utils.class.getSimpleName();
@@ -65,40 +61,23 @@ public class Utils {
         return m.matches();
     }
 
-    public static void saveTokenToPreferences(final Context context, final InnerCircleToken token) {
-        SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.TOKEN_PREFERENCE, Context.MODE_PRIVATE);
-        Editor editor = sharedPreferences.edit();
-        editor.putString(Constants.UID, token.getUid());
-        editor.putString(Constants.ACCESS_TOKEN, token.getAccessToken());
-        editor.putString(Constants.REFRESH_TOKEN, token.getRefreshToken());
-        editor.putLong(Constants.TIMESTAMP, token.getTimestamp());
-        editor.commit();
-    }
-
-    public static InnerCircleToken getTokenFromPreferences(final Context context) {
-        final SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.TOKEN_PREFERENCE, Context.MODE_PRIVATE);
-        final String uid = sharedPreferences.getString(Constants.UID, null);
-        final String accessToken = sharedPreferences.getString(Constants.ACCESS_TOKEN, null);
-        final String refreshToken = sharedPreferences.getString(Constants.REFRESH_TOKEN, null);
-        final long timestamp = sharedPreferences.getLong(Constants.TIMESTAMP, 0);
-
-        final InnerCircleToken token = (new InnerCircleToken.Builder())
-                .setUid(uid)
-                .setAccessToken(accessToken)
-                .setRefreshToken(refreshToken)
-                .setTimestamp(timestamp)
-                .build();
-        return token;
-    }
-
     public static File createTemporaryFile(Context context, String part, String ext) throws Exception {
         File tempDir= Environment.getExternalStorageDirectory();
-        tempDir=new File(tempDir.getAbsolutePath()+"/.temp/");
+        tempDir=new File(tempDir.getAbsolutePath()+"/EntertainmentCircle/");
         if(!tempDir.exists()) {
             tempDir.mkdir();
         }
         return File.createTempFile(part, ext, tempDir);
     }
+
+    /*public static String createTemporaryFilePath(final String filename) throws Exception {
+        File tempDir= Environment.getExternalStorageDirectory();
+        tempDir=new File(tempDir.getAbsolutePath()+"/EntertainmentCircle/");
+        if(!tempDir.exists()) {
+            tempDir.mkdir();
+        }
+        return tempDir.getPath() + "/" +filename;
+    }*/
 
     public static Bitmap grabImageBitmap(Context context, Uri imageUri) {
         context.getContentResolver().notifyChange(imageUri, null);

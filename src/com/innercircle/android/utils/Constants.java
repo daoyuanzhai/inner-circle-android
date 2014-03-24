@@ -3,17 +3,18 @@ package com.innercircle.android.utils;
 public class Constants {
     private Constants(){}
 
-    public enum Gender {
-        M, F
-    }
-
     public static final String LAYOUT_ID = "layoutId";
 
+    public static char MALE = 'M';
+    public static char FEMALE = 'F';
     // API names
     public static final String REGISTER_API = "register";
     public static final String LOGIN_API = "login";
     public static final String REFRESH_ACCESS_TOKEN_API = "refreshAccessToken";
     public static final String SET_GENDER_API = "setGender";
+    public static final String SET_USERNAME_API = "setUsername";
+    public static final String GET_USER_ACCOUNT_API = "getUserAccount";
+    public static final String FILE_UPLOAD_API = "fileUpload";
 
     // HTTP Request Params
     public static final String SERVICES_CONSOLE = "http://192.241.202.169:8080/ServicesConsole/";
@@ -23,8 +24,18 @@ public class Constants {
     public static final String TIMESTAMP = "timestamp";
     public static final String EMAIL = "email";
     public static final String PASSWORD = "password";
-    public static final String VIPCode = "VIPCode";
     public static final String GENDER = "gender";
+    public static final String USERNAME = "username";
+    public static final String FILE = "file";
+    public static final String FILENAME = "filename";
+
+    public static final String IMAGE_USAGE = "imageUsage";
+    public static final String IMAGE_USAGE_FOR_NEWS = "forNews";
+    public static final String IMAGE_USAGE_FOR_TALKS = "forTalks";
+    public static final String IMAGE_USAGE_FOR_SETTINGS = "forSettings";
+
+    public static final String REQUEST_VIP_CODE = "VIPCode";
+    public static final String RESPONSE_VIP_CODE = "vipcode";
 
     // HTTP Response Params
     public static final String STATUS = "status";
@@ -32,9 +43,21 @@ public class Constants {
 
     // SharedPreferences
     public static final String TOKEN_PREFERENCE = "tokenPreference";
+    public static final String USER_PREFERENCE = "userPreference";
+    public static final String LOGIN_STATUS = "loginStatus";
 
-    // Images
-    public static int REQUEST_PICTURE = 1;
-    public static int CROP_PICTURE = 2;
-    public static int REQUEST_CAMERA = 3;
+    // Intent Request Code
+    public static int INTENT_CODE_REGISTER = 1;
+    public static int INTENT_CODE_CREATE_PROFILE = 2;
+    public static int INTENT_CODE_VENEZIA = 3;
+
+    public static int INTENT_CODE_REQUEST_PICTURE = 4;
+    public static int INTENT_CODE_CROP_PICTURE = 5;
+    public static int INTENT_CODE_REQUEST_CAMERA = 6;
+
+    // Tab Tags
+    public static final String NEWS_TAG = "newsTabTag";
+    public static final String TALKS_TAG = "talksTabTag";
+    public static final String DISCOVERY_TAG = "discoveryTabTag";
+    public static final String SETTINGS_TAG = "settingsTabTag";
 }

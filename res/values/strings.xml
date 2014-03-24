@@ -18,11 +18,12 @@
     <string name="login">Login</string>
 
     <string name="invalidEmail">Not an email address, please try again.</string>
-    <string name="emailExists">This email is already registered, please try a different one.</string>
+    <string name="emailExists">This email is already registered, please go login or try a different one.</string>
     <string name="registerError">Register has failed, please check your internet and try again.</string>
     <string name="loginError">Login has failed, please check your internet and try again.</string>
     <string name="createProfileError">Failed to create your profile, please check your internet and try again.</string>
     <string name="emailPasswordMismatch">The email and password do not match any of our records.</string>
+
     <string name="nicknameEmpty">Please enter your nickname for other users to see.</string>
     <string name="genderEmpty">Please choose your gender.</string>
 
@@ -33,4 +34,11 @@
 
     <string name="male">Guy</string>
     <string name="female">Girl</string>
+
+    <string name="news_tab_label">news</string>
+    <string name="talks_tab_label">talks</string>
+    <string name="discovery_tab_label">discover</string>
+    <string name="me_tab_label">settings</string>
+
+    <string name="insertSDCard">Please check SD card, otherwise, app won\'t be able to show images.</string>
 </resources>

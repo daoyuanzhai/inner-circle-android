@@ -1,6 +1,7 @@
 package com.innercircle.android;
 
 import java.io.File;
+import java.io.FileOutputStream;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -24,7 +25,6 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.camera.CropImageIntentBuilder;
 import com.android.camera.datastore.CropProfileImageAccesser;
@@ -33,23 +33,26 @@ import com.innercircle.android.http.HttpRequestUtils;
 import com.innercircle.android.model.InnerCircleRequest;
 import com.innercircle.android.model.InnerCircleResponse;
 import com.innercircle.android.model.InnerCircleToken;
+import com.innercircle.android.model.InnerCircleUser;
 import com.innercircle.android.thread.HandlerThreadPoolManager;
 import com.innercircle.android.utils.Constants;
 import com.innercircle.android.utils.MediaStoreUtils;
+import com.innercircle.android.utils.SharedPreferencesUtils;
 import com.innercircle.android.utils.Utils;
 
 public class CreateProfileActivity extends FragmentActivity{
     private static final String TAG = CreateProfileActivity.class.getSimpleName();
 
     private InnerCircleToken token;
+    private InnerCircleUser user;
     private CropProfileImageAccesser profileAccesser;
 
-    private ImageButton imageButtonProfile;
     private CropImageIntentBuilder cropImage;
     private Uri cameraImageUri;
 
     private Point screenSize;
 
+    private ImageButton imageButtonProfile;
     private CheckBox checkBoxMale;
     private CheckBox checkBoxFemale;
     private TextView textViewError;
@@ -61,7 +64,11 @@ public class CreateProfileActivity extends FragmentActivity{
     private InnerCircleResponse response;
     private Runnable responseCallback;
 
-    private Constants.Gender gender;
+    private String username;
+    private char gender;
+
+    private boolean newPicSelected;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,18 +78,32 @@ public class CreateProfileActivity extends FragmentActivity{
 
         setContentView(R.layout.activity_create_profile);
 
-        token = Utils.getTokenFromPreferences(this);
-        profileAccesser = new CropProfileImageAccesser(this);
-        profileAccesser.open();
-
         imageButtonProfile = (ImageButton) findViewById(R.id.imageButtonCreateProfile);
-        getScreenSize();
-        cropImage = new CropImageIntentBuilder(screenSize.x/4, screenSize.x/4);
-
         checkBoxMale = (CheckBox) findViewById(R.id.checkBoxMale);
         checkBoxFemale = (CheckBox) findViewById(R.id.checkBoxFemale);
         textViewError = (TextView) findViewById(R.id.textViewGoAppError);
         editTextUsername = (EditText) findViewById(R.id.editTextUsername);
+        progressBar = (ProgressBar) findViewById(R.id.progressBarCreateProfile);
+
+        token = SharedPreferencesUtils.getTokenFromPreferences(getApplicationContext());
+
+        profileAccesser = new CropProfileImageAccesser(getApplicationContext());
+        profileAccesser.open();
+
+        newPicSelected = false;
+        getScreenSize();
+        cropImage = new CropImageIntentBuilder(screenSize.x/4, screenSize.x/4);
+
+        // Set profile picture if already saved in SDCard
+        byte[] imageData = profileAccesser.getImageByUID(token.getUid());
+        if (null != imageData && imageData.length >0) {
+            Drawable imageDrawable = ImageUtils.byteToDrawable(getApplicationContext(), imageData);
+            imageButtonProfile.setImageDrawable(imageDrawable);
+            imageDrawable = null;
+        }
+        imageData = null;
+        cameraImageUri = getTempFileUri();
+        Log.v(TAG, "temp file path: " + cameraImageUri.getPath());
 
         final OnCheckedChangeListener listener = new OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton arg0, boolean isChecked) {
@@ -103,8 +124,6 @@ public class CreateProfileActivity extends FragmentActivity{
         checkBoxMale.setOnCheckedChangeListener(listener);
         checkBoxFemale.setOnCheckedChangeListener(listener);
 
-        progressBar = (ProgressBar) findViewById(R.id.progressBarCreateProfile);
-
         mainHandler = new Handler(this.getMainLooper());
         handlerThreadPoolManager = HandlerThreadPoolManager.getInstance();
 
@@ -112,17 +131,25 @@ public class CreateProfileActivity extends FragmentActivity{
             @Override
             public void run() {
                 final InnerCircleResponse.Status status = response.getStatus();
-                Log.v(TAG, "login response status: " + status.toString());
                 if (status == InnerCircleResponse.Status.SUCCESS) {
-                    Log.v(TAG, "set gender successful");
+                    Log.v(TAG, "profile created successfully");
+
+                    Intent registerIntent = new Intent(getApplicationContext(), VeneziaActivity.class);
+                    startActivityForResult(registerIntent, Constants.INTENT_CODE_VENEZIA);
                 } else {
                     textViewError.setText(R.string.createProfileError);
                     textViewError.setVisibility(View.VISIBLE);
-                    Utils.hideSoftKeyboard(CreateProfileActivity.this, editTextUsername);
+                    Utils.hideSoftKeyboard(getApplicationContext(), editTextUsername);
                 }
                 progressBar.setVisibility(View.GONE);
             }
         };
+    }
+
+    @Override
+    public void onBackPressed() {
+        setResult(RESULT_OK);
+        finish();
     }
 
     @Override
@@ -131,29 +158,54 @@ public class CreateProfileActivity extends FragmentActivity{
         Log.v(TAG, "requestCode: " + requestCode);
         Log.v(TAG, "resultCode: " + resultCode);
 
-        if (requestCode == Constants.REQUEST_PICTURE && resultCode == RESULT_OK) {
-            cropImage.setSourceImage(data.getData());
+        final boolean isLogin = SharedPreferencesUtils.getLoginStatuFromPreferences(getApplicationContext());
+        if (resultCode == RESULT_OK) {
+            if (requestCode == Constants.INTENT_CODE_VENEZIA && isLogin) {
+                setResult(RESULT_OK);
+                finish();
 
-            startActivityForResult(cropImage.getIntent(this, token.getUid()), Constants.CROP_PICTURE);
+            } else if (requestCode == Constants.INTENT_CODE_REQUEST_CAMERA) {
+                Log.v(TAG, "a picture has been taken for uid: " + token.getUid());
 
-        } else if (requestCode == Constants.CROP_PICTURE && resultCode == RESULT_OK) {
-            Log.v(TAG, "cropped image returned for uid: " + token.getUid());
+                // Store the picture to Android Media Store
+                Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                intent.setData(cameraImageUri);
+                sendBroadcast(intent);
 
-            final byte[] imageData = profileAccesser.getImageByUID(token.getUid());
-            final Drawable imageDrawable = ImageUtils.byteToDrawable(this, imageData);
-            imageButtonProfile.setImageDrawable(imageDrawable);
+                // start the CropImage Activity to crop the taken picture
+                cropImage.setSourceImage(cameraImageUri);
+                startActivityForResult(cropImage.getIntent(getApplicationContext(), token.getUid()), Constants.INTENT_CODE_CROP_PICTURE);
 
-        } else if (requestCode == Constants.REQUEST_CAMERA && resultCode == RESULT_OK) {
-            Log.v(TAG, "picture taken for uid: " + token.getUid());
+            } else if (requestCode == Constants.INTENT_CODE_REQUEST_PICTURE) {
+                // start the CropImage Activity to crop the selected picture
+                cropImage.setSourceImage(data.getData());
+                startActivityForResult(cropImage.getIntent(getApplicationContext(), token.getUid()), Constants.INTENT_CODE_CROP_PICTURE);
 
-            // Store the picture to Android Media Store
-            Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-            intent.setData(cameraImageUri);
-            sendBroadcast(intent);
+            } else if (requestCode == Constants.INTENT_CODE_CROP_PICTURE) {
+                Log.v(TAG, "a cropped image has been returned for uid: " + token.getUid());
 
-            cropImage.setSourceImage(cameraImageUri);
+                byte[] imageData = profileAccesser.getImageByUID(token.getUid());
+                Drawable imageDrawable = ImageUtils.byteToDrawable(getApplicationContext(), imageData);
+                imageButtonProfile.setImageDrawable(imageDrawable);
 
-            startActivityForResult(cropImage.getIntent(this, token.getUid()), Constants.CROP_PICTURE);
+                // store the cropped picture on a temporary file so that it can be uploaded later
+                final File file = new File(cameraImageUri.getPath());
+                FileOutputStream outStream;
+                try {
+                    outStream = new FileOutputStream(file);
+                    outStream.write(imageData);
+                    outStream.flush();
+                    outStream.close();
+                } catch (Exception e) {
+                    Log.v(TAG, e.toString());
+                }
+
+                // release resources
+                imageData = null;
+                imageDrawable = null;
+
+                newPicSelected = true;
+            }
         }
     }
 
@@ -168,24 +220,12 @@ public class CreateProfileActivity extends FragmentActivity{
             public void onClick(DialogInterface dialog, int which) {
                 switch (which) {
                 case 0:
-                    startActivityForResult(MediaStoreUtils.getPickImageIntent(CreateProfileActivity.this), Constants.REQUEST_PICTURE);
+                    startActivityForResult(MediaStoreUtils.getPickImageIntent(CreateProfileActivity.this), Constants.INTENT_CODE_REQUEST_PICTURE);
                     break;
                 case 1:
                     Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
-                    File photo;
-                    try {
-                        // place where to store camera taken picture
-                        photo = Utils.createTemporaryFile(CreateProfileActivity.this, "temp_picture", ".jpg");
-                        photo.delete();
-                        cameraImageUri = Uri.fromFile(photo);
-
-                        intent.putExtra(MediaStore.EXTRA_OUTPUT, cameraImageUri);
-                        startActivityForResult(intent, Constants.REQUEST_CAMERA);
-                    } catch(Exception e) {
-                        Log.e(TAG, "Can't create file to take picture!");
-                        Toast.makeText(CreateProfileActivity.this,
-                                "Please check SD card! Image shot is impossible!", Toast.LENGTH_LONG).show();
-                    }
+                    intent.putExtra(MediaStore.EXTRA_OUTPUT, cameraImageUri);
+                    startActivityForResult(intent, Constants.INTENT_CODE_REQUEST_CAMERA);
                     break;
                 }
             }
@@ -196,43 +236,84 @@ public class CreateProfileActivity extends FragmentActivity{
 
     public void onClickGoApp(View v) {
         if (checkBoxMale.isChecked()) {
-            gender = Constants.Gender.M;
+            gender = Constants.MALE;
         } else if (checkBoxFemale.isChecked()) {
-            gender = Constants.Gender.F;
+            gender = Constants.FEMALE;
         } else {
             textViewError.setText(getResources().getString(R.string.genderEmpty));
             textViewError.setVisibility(View.VISIBLE);
+            Utils.hideSoftKeyboard(getApplicationContext(), editTextUsername);
             return;
         }
 
-        final String username = editTextUsername.getText().toString();
+        username = editTextUsername.getText().toString();
         if (username.isEmpty()) {
             textViewError.setText(getResources().getString(R.string.nicknameEmpty));
             textViewError.setVisibility(View.VISIBLE);
-            Utils.hideSoftKeyboard(this, editTextUsername);
+            Utils.hideSoftKeyboard(getApplicationContext(), editTextUsername);
             return;
         }
 
-        final Runnable registerRunnable = new Runnable(){
+        final Runnable createProfileRunnable = new Runnable(){
             @Override
             public void run(){
                 final InnerCircleRequest request = (new InnerCircleRequest.Builder())
                         .setAPI(Constants.SET_GENDER_API)
                         .setNameValuePair(Constants.UID, token.getUid())
                         .setNameValuePair(Constants.ACCESS_TOKEN, token.getAccessToken())
-                        .setNameValuePair(Constants.GENDER, gender.toString())
+                        .setNameValuePair(Constants.GENDER, String.valueOf(gender))
                         .build();
-                response = HttpRequestUtils.setGenderRequest(CreateProfileActivity.this, request);
+                // setGender request
+                response = HttpRequestUtils.setGenderRequest(getApplicationContext(), request);
+
+                // setUsername request
+                if (response.getStatus() == InnerCircleResponse.Status.SUCCESS) {
+                    request.setAPI(Constants.SET_USERNAME_API);
+                    request.setNameValuePair(Constants.USERNAME, username);
+                    response = HttpRequestUtils.setUsernameRequest(getApplicationContext(), request);
+
+                    if (response.getStatus() == InnerCircleResponse.Status.SUCCESS) {
+                        // user profile should be complete by now
+                        user = (InnerCircleUser) response.getData();
+                        SharedPreferencesUtils.saveUserToPreferences(getApplicationContext(), user);
+                        SharedPreferencesUtils.saveLoginStatusToPreferences(getApplicationContext(), true);
+
+                        if (newPicSelected) {
+                            request.setAPI(Constants.FILE_UPLOAD_API);
+                            request.setNameValuePair(Constants.FILENAME, token.getUid());
+                            request.setNameValuePair(Constants.IMAGE_USAGE, Constants.IMAGE_USAGE_FOR_SETTINGS);
+                            response = HttpRequestUtils.fileUploadRequest(getApplicationContext(), request, cameraImageUri);
+                        }
+                        newPicSelected = false;
+                    }
+                }
                 mainHandler.post(responseCallback);
             }
         };
         progressBar.setVisibility(View.VISIBLE);
-        handlerThreadPoolManager.submitToBack(registerRunnable);
+        handlerThreadPoolManager.submitToBack(createProfileRunnable);
     }
 
+    // can't move this to Utils class
     private void getScreenSize() {
         final Display display = getWindowManager().getDefaultDisplay();
         screenSize = new Point();
         display.getSize(screenSize);
+    }
+
+    private Uri getTempFileUri() {
+        try {
+            // place where to store taken/selected picture
+            final File photo = Utils.createTemporaryFile(getApplicationContext(), token.getUid(), ".png");
+            photo.delete();
+            return Uri.fromFile(photo);
+
+        } catch(Exception e) {
+            Log.e(TAG, "Can't create file to manipulate photos!");
+            textViewError.setText(R.string.insertSDCard);
+            textViewError.setVisibility(View.VISIBLE);
+            Utils.hideSoftKeyboard(getApplicationContext(), editTextUsername);
+            return null;
+        }
     }
 }

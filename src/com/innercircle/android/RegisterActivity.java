@@ -14,8 +14,10 @@ import android.widget.TextView;
 import com.innercircle.android.http.HttpRequestUtils;
 import com.innercircle.android.model.InnerCircleRequest;
 import com.innercircle.android.model.InnerCircleResponse;
+import com.innercircle.android.model.InnerCircleToken;
 import com.innercircle.android.thread.HandlerThreadPoolManager;
 import com.innercircle.android.utils.Constants;
+import com.innercircle.android.utils.SharedPreferencesUtils;
 import com.innercircle.android.utils.Utils;
 
 public class RegisterActivity extends FragmentActivity{
@@ -29,9 +31,7 @@ public class RegisterActivity extends FragmentActivity{
     private EditText editTextRegisterEmail;
     private EditText editTextRegisterPassword;
     private EditText editTextVIPCode;
-
     private TextView textViewError;
-
     private ProgressBar progressBar;
 
     @Override
@@ -43,15 +43,14 @@ public class RegisterActivity extends FragmentActivity{
 
         setContentView(R.layout.activity_register);
 
-        mainHandler = new Handler(this.getMainLooper());
-        handlerThreadPoolManager = HandlerThreadPoolManager.getInstance();
-
-        textViewError = (TextView) findViewById(R.id.textViewRegisterError);
-        progressBar = (ProgressBar) findViewById(R.id.progressBarRegister);
-
         editTextRegisterEmail = (EditText) findViewById(R.id.editTextRegisterEmail);
         editTextRegisterPassword = (EditText) findViewById(R.id.editTextRegisterPassword);
         editTextVIPCode = (EditText) findViewById(R.id.editTextVIPCode);
+        textViewError = (TextView) findViewById(R.id.textViewRegisterError);
+        progressBar = (ProgressBar) findViewById(R.id.progressBarRegister);
+
+        mainHandler = new Handler(this.getMainLooper());
+        handlerThreadPoolManager = HandlerThreadPoolManager.getInstance();
 
         responseCallback = new Runnable(){
             @Override
@@ -59,8 +58,11 @@ public class RegisterActivity extends FragmentActivity{
                 final InnerCircleResponse.Status status = response.getStatus();
                 Log.v(TAG, "register response status: " + status.toString());
                 if (status == InnerCircleResponse.Status.SUCCESS) {
-                    Intent registerIntent = new Intent(RegisterActivity.this, CreateProfileActivity.class);
-                    startActivity(registerIntent);
+                    // save token to SharedPreferences
+                    SharedPreferencesUtils.saveTokenToPreferences(getApplicationContext(), (InnerCircleToken) response.getData());
+
+                    Intent registerIntent = new Intent(getApplicationContext(), CreateProfileActivity.class);
+                    startActivityForResult(registerIntent, Constants.INTENT_CODE_CREATE_PROFILE);
                 } else if (status == InnerCircleResponse.Status.EMAIL_EXISTS_ERROR) {
                     textViewError.setText(R.string.emailExists);
                     textViewError.setVisibility(View.VISIBLE);
@@ -83,39 +85,66 @@ public class RegisterActivity extends FragmentActivity{
 
     @Override
     public void onBackPressed() {
+        setResult(RESULT_OK);
         finish();
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.v(TAG, "requestCode: " + requestCode);
+        Log.v(TAG, "resultCode: " + resultCode);
+
+        final boolean isLogin = SharedPreferencesUtils.getLoginStatuFromPreferences(getApplicationContext());
+        if (resultCode == RESULT_OK && isLogin) {
+            setResult(RESULT_OK);
+            finish();
+        }
+    }
     public void onClickGoLogin(View v) {
+        setResult(RESULT_OK);
         finish();
     }
 
     public void onClickRegister(View v) {
         final String email = editTextRegisterEmail.getText().toString();
-
-        if (Utils.isValidEmail(email)) {
-            final String password = editTextRegisterPassword.getText().toString();
-            final String VIPCode = editTextVIPCode.getText().toString();
-
-            final Runnable registerRunnable = new Runnable(){
-                @Override
-                public void run(){
-                    final InnerCircleRequest request = (new InnerCircleRequest.Builder())
-                            .setAPI(Constants.REGISTER_API)
-                            .setNameValuePair(Constants.EMAIL, email)
-                            .setNameValuePair(Constants.PASSWORD, password)
-                            .setNameValuePair(Constants.VIPCode, VIPCode)
-                            .build();
-                    response = HttpRequestUtils.registerRequest(RegisterActivity.this, request);
-                    mainHandler.post(responseCallback);
-                }
-            };
-            progressBar.setVisibility(View.VISIBLE);
-            handlerThreadPoolManager.submitToBack(registerRunnable);
-        } else {
+        if (!Utils.isValidEmail(email)) {
             textViewError.setText(R.string.invalidEmail);
             textViewError.setVisibility(View.VISIBLE);
             Utils.hideSoftKeyboard(this, editTextRegisterEmail);
+            return;
         }
+
+        final String password = editTextRegisterPassword.getText().toString();
+        if (password.isEmpty()) {
+            textViewError.setText(R.string.enterPassword);
+            textViewError.setVisibility(View.VISIBLE);
+            Utils.hideSoftKeyboard(this, editTextRegisterEmail);
+            return;
+        }
+
+        final String VIPCode = editTextVIPCode.getText().toString();
+        if (VIPCode.isEmpty()) {
+            textViewError.setText(R.string.enterVIPCode);
+            textViewError.setVisibility(View.VISIBLE);
+            Utils.hideSoftKeyboard(this, editTextRegisterEmail);
+            return;
+        }
+
+        final Runnable registerRunnable = new Runnable(){
+            @Override
+            public void run(){
+                final InnerCircleRequest request = (new InnerCircleRequest.Builder())
+                        .setAPI(Constants.REGISTER_API)
+                        .setNameValuePair(Constants.EMAIL, email)
+                        .setNameValuePair(Constants.PASSWORD, password)
+                        .setNameValuePair(Constants.REQUEST_VIP_CODE, VIPCode)
+                        .build();
+                response = HttpRequestUtils.registerRequest(RegisterActivity.this, request);
+                mainHandler.post(responseCallback);
+            }
+        };
+        progressBar.setVisibility(View.VISIBLE);
+        handlerThreadPoolManager.submitToBack(registerRunnable);
     }
 }

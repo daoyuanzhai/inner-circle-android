@@ -4,7 +4,6 @@ public class InnerCircleToken implements InnerCircleData {
     private String mUid;
     private String mAccessToken;
     private String mRefreshToken;
-    private char mGender;
     private long mTimestamp;
 
     public void setUid(final String uid) {
@@ -31,14 +30,6 @@ public class InnerCircleToken implements InnerCircleData {
         return this.mRefreshToken;
     }
 
-    public void setGender(final char gender) {
-        this.mGender = gender;
-    }
-
-    public char getGender() {
-        return this.mGender;
-    }
-
     public void setTimestamp(final long timestamp) {
         this.mTimestamp = timestamp;
     }
@@ -51,7 +42,6 @@ public class InnerCircleToken implements InnerCircleData {
         this.mUid = builder.bUid;
         this.mAccessToken = builder.bAccessToken;
         this.mRefreshToken = builder.bRefreshToken;
-        this.mGender = builder.bGender;
         this.mTimestamp = builder.bTimestamp;
     }
 
@@ -59,7 +49,6 @@ public class InnerCircleToken implements InnerCircleData {
         private String bUid;
         private String bAccessToken;
         private String bRefreshToken;
-        private char bGender;
         private long bTimestamp;
 
         public InnerCircleToken build() {
@@ -78,11 +67,6 @@ public class InnerCircleToken implements InnerCircleData {
 
         public Builder setRefreshToken(final String refreshToken) {
             this.bRefreshToken = refreshToken;
-            return this;
-        }
-
-        public Builder setGender(final char gender) {
-            this.bGender = gender;
             return this;
         }
 

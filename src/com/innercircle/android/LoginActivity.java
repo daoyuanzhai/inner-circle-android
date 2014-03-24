@@ -14,8 +14,11 @@ import android.widget.TextView;
 import com.innercircle.android.http.HttpRequestUtils;
 import com.innercircle.android.model.InnerCircleRequest;
 import com.innercircle.android.model.InnerCircleResponse;
+import com.innercircle.android.model.InnerCircleToken;
+import com.innercircle.android.model.InnerCircleUser;
 import com.innercircle.android.thread.HandlerThreadPoolManager;
 import com.innercircle.android.utils.Constants;
+import com.innercircle.android.utils.SharedPreferencesUtils;
 import com.innercircle.android.utils.Utils;
 
 public class LoginActivity extends FragmentActivity {
@@ -28,10 +31,11 @@ public class LoginActivity extends FragmentActivity {
 
     private EditText editTextLoginEmail;
     private EditText editTextLoginPassword;
-
     private TextView textViewError;
-
     private ProgressBar progressBar;
+
+    private InnerCircleUser user;
+    private InnerCircleToken token;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,11 +46,10 @@ public class LoginActivity extends FragmentActivity {
 
         setContentView(R.layout.activity_login);
 
-        textViewError = (TextView) findViewById(R.id.textViewLoginError);
-        progressBar = (ProgressBar) findViewById(R.id.progressBarLogin);
-
         editTextLoginEmail = (EditText) findViewById(R.id.editTextLoginEmail);
         editTextLoginPassword = (EditText) findViewById(R.id.editTextLoginPassword);
+        textViewError = (TextView) findViewById(R.id.textViewLoginError);
+        progressBar = (ProgressBar) findViewById(R.id.progressBarLogin);
 
         mainHandler = new Handler(this.getMainLooper());
         handlerThreadPoolManager = HandlerThreadPoolManager.getInstance();
@@ -55,59 +58,125 @@ public class LoginActivity extends FragmentActivity {
             @Override
             public void run() {
                 final InnerCircleResponse.Status status = response.getStatus();
-                Log.v(TAG, "login response status: " + status.toString());
+                Log.v(TAG, "getUserAccount response status: " + status.toString());
                 if (status == InnerCircleResponse.Status.SUCCESS) {
-                    Intent registerIntent = new Intent(LoginActivity.this, CreateProfileActivity.class);
-                    startActivity(registerIntent);
+                    user = (InnerCircleUser) response.getData();
+
+                    SharedPreferencesUtils.saveUserToPreferences(getApplicationContext(), user);
+                    SharedPreferencesUtils.saveTokenToPreferences(getApplicationContext(), token);
+
+                    launchNextActivity();
                 } else if (status == InnerCircleResponse.Status.EMAIL_PASSWORD_MISMATCH) {
                     textViewError.setText(R.string.emailPasswordMismatch);
                     textViewError.setVisibility(View.VISIBLE);
-                    Utils.hideSoftKeyboard(LoginActivity.this, editTextLoginEmail);
+                    Utils.hideSoftKeyboard(getApplicationContext(), editTextLoginEmail);
                 } else {
                     textViewError.setText(R.string.loginError);
                     textViewError.setVisibility(View.VISIBLE);
-                    Utils.hideSoftKeyboard(LoginActivity.this, editTextLoginEmail);
+                    Utils.hideSoftKeyboard(getApplicationContext(), editTextLoginEmail);
                 }
                 progressBar.setVisibility(View.GONE);
             }
         };
+
+        final boolean isLogin = SharedPreferencesUtils.getLoginStatuFromPreferences(getApplicationContext());
+        if (isLogin) {
+            final Intent intent = new Intent(getApplicationContext(), VeneziaActivity.class);
+            startActivityForResult(intent, Constants.INTENT_CODE_VENEZIA);
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         textViewError.setVisibility(View.INVISIBLE);
+
+        // if a user profile already exists, populate the email so save user some typing
+        if (null == user) {
+            user = SharedPreferencesUtils.getUserFromPreferences(getApplicationContext());
+        }
+        if (null != user.getEmail()) {
+            editTextLoginEmail.setText(user.getEmail());
+        }
+        editTextLoginPassword.setText(null);
     }
 
     public void onClickGoRegister(View v) {
-        Intent registerIntent = new Intent(this, RegisterActivity.class);
-        startActivity(registerIntent);
+        Intent registerIntent = new Intent(getApplicationContext(), RegisterActivity.class);
+        startActivityForResult(registerIntent, Constants.INTENT_CODE_REGISTER);
     }
 
     public void onClickLogin(View v) {
-    	final String email = editTextLoginEmail.getText().toString();
-
-        if (Utils.isValidEmail(email)) {
-            final String password = editTextLoginPassword.getText().toString();
-
-            final Runnable registerRunnable = new Runnable(){
-                @Override
-                public void run(){
-                    final InnerCircleRequest request = (new InnerCircleRequest.Builder())
-                            .setAPI(Constants.LOGIN_API)
-                            .setNameValuePair(Constants.EMAIL, email)
-                            .setNameValuePair(Constants.PASSWORD, password)
-                            .build();
-                    response = HttpRequestUtils.loginRequest(LoginActivity.this, request);
-                    mainHandler.post(responseCallback);
-                }
-            };
-            progressBar.setVisibility(View.VISIBLE);
-            handlerThreadPoolManager.submitToBack(registerRunnable);
-        } else {
-            textViewError.setText(R.string.invalidEmail);
+        final String email = editTextLoginEmail.getText().toString();
+        if (!Utils.isValidEmail(email)) {
+                textViewError.setText(R.string.invalidEmail);
+                textViewError.setVisibility(View.VISIBLE);
+                Utils.hideSoftKeyboard(getApplicationContext(), editTextLoginEmail);
+                return;
+        }
+        final String password = editTextLoginPassword.getText().toString();
+        if (password.isEmpty()) {
+            textViewError.setText(R.string.enterPassword);
             textViewError.setVisibility(View.VISIBLE);
-            Utils.hideSoftKeyboard(this, editTextLoginEmail);
+            Utils.hideSoftKeyboard(getApplicationContext(), editTextLoginEmail);
+            return;
+        }
+
+        final Runnable loginRunnable = new Runnable(){
+            @Override
+            public void run(){
+                final InnerCircleRequest request = (new InnerCircleRequest.Builder())
+                        .setAPI(Constants.LOGIN_API)
+                        .setNameValuePair(Constants.EMAIL, email)
+                        .setNameValuePair(Constants.PASSWORD, password)
+                        .build();
+                response = HttpRequestUtils.loginRequest(getApplicationContext(), request);
+
+                if (response.getStatus() == InnerCircleResponse.Status.SUCCESS) {
+                    token = (InnerCircleToken) response.getData();
+
+                    // after getting the token, fire a second call to get user profile
+                    request.setAPI(Constants.GET_USER_ACCOUNT_API);
+                    request.setNameValuePair(Constants.UID, token.getUid());
+                    request.setNameValuePair(Constants.ACCESS_TOKEN, token.getAccessToken());
+
+                    response = HttpRequestUtils.getUserAccountRequest(getApplicationContext(), request);
+                }
+                mainHandler.post(responseCallback);
+            }
+        };
+        progressBar.setVisibility(View.VISIBLE);
+        handlerThreadPoolManager.submitToBack(loginRunnable);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.v(TAG, "requestCode: " + requestCode);
+        Log.v(TAG, "resultCode: " + resultCode);
+
+        final boolean isLogin = SharedPreferencesUtils.getLoginStatuFromPreferences(getApplicationContext());
+        if (resultCode == RESULT_OK && isLogin) {
+            finish();
+        }
+    }
+
+    private void launchNextActivity() {
+        Intent intent;
+        if ((user.getGender() == Constants.MALE || user.getGender() == Constants.FEMALE) &&
+                (null !=user.getUsername() && !user.getUsername().isEmpty())) {
+            Log.v(TAG, "user profile is complete, launching VeneziaActivity...");
+
+            // only after the profile is complete, is the user considered login
+            SharedPreferencesUtils.saveLoginStatusToPreferences(getApplicationContext(), true);
+
+            intent = new Intent(getApplicationContext(), VeneziaActivity.class);
+            startActivityForResult(intent, Constants.INTENT_CODE_VENEZIA);
+        } else {
+            Log.v(TAG, "gender/username is(are) missing, launching CreateProfileActivity...");
+
+            intent = new Intent(getApplicationContext(), CreateProfileActivity.class);
+            startActivityForResult(intent, Constants.INTENT_CODE_CREATE_PROFILE);
         }
     }
 }
