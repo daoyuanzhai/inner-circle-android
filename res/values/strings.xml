@@ -41,4 +41,8 @@
     <string name="me_tab_label">settings</string>
 
     <string name="insertSDCard">Please check SD card, otherwise, app won\'t be able to show images.</string>
+
+    <string name="logoutButton">Logout</string>
+
+    <string name="newsTabTitle">News</string>
 </resources>

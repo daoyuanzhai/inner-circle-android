@@ -133,6 +133,7 @@ public class CreateProfileActivity extends FragmentActivity{
                 final InnerCircleResponse.Status status = response.getStatus();
                 if (status == InnerCircleResponse.Status.SUCCESS) {
                     Log.v(TAG, "profile created successfully");
+                    newPicSelected = false;
 
                     Intent registerIntent = new Intent(getApplicationContext(), VeneziaActivity.class);
                     startActivityForResult(registerIntent, Constants.INTENT_CODE_VENEZIA);
@@ -147,6 +148,12 @@ public class CreateProfileActivity extends FragmentActivity{
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        textViewError.setVisibility(View.INVISIBLE);
+    }
+
+    @Override
     public void onBackPressed() {
         setResult(RESULT_OK);
         finish();
@@ -158,10 +165,10 @@ public class CreateProfileActivity extends FragmentActivity{
         Log.v(TAG, "requestCode: " + requestCode);
         Log.v(TAG, "resultCode: " + resultCode);
 
-        final boolean isLogin = SharedPreferencesUtils.getLoginStatuFromPreferences(getApplicationContext());
         if (resultCode == RESULT_OK) {
-            if (requestCode == Constants.INTENT_CODE_VENEZIA && isLogin) {
-                setResult(RESULT_OK);
+            if (requestCode == Constants.INTENT_CODE_VENEZIA) {
+                getIntent().putExtra(Constants.IS_FROM_VENEZIA, true);
+                setResult(RESULT_OK, getIntent());
                 finish();
 
             } else if (requestCode == Constants.INTENT_CODE_REQUEST_CAMERA) {
@@ -281,10 +288,9 @@ public class CreateProfileActivity extends FragmentActivity{
                         if (newPicSelected) {
                             request.setAPI(Constants.FILE_UPLOAD_API);
                             request.setNameValuePair(Constants.FILENAME, token.getUid());
-                            request.setNameValuePair(Constants.IMAGE_USAGE, Constants.IMAGE_USAGE_FOR_SETTINGS);
+                            request.setNameValuePair(Constants.IMAGE_USAGE, String.valueOf(Constants.IMAGE_USAGE_FOR_SETTINGS));
                             response = HttpRequestUtils.fileUploadRequest(getApplicationContext(), request, cameraImageUri);
                         }
-                        newPicSelected = false;
                     }
                 }
                 mainHandler.post(responseCallback);

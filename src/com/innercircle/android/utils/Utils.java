@@ -1,6 +1,7 @@
 package com.innercircle.android.utils;
 
 import java.io.File;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -91,6 +92,21 @@ public class Utils {
             Log.e(TAG, "Failed to load " + imageUri.toString() + ": " + e.toString());
             return null;
         }
+    }
+
+    public static String uidJSONArrayBuilder(final List<String> uidList) {
+        final StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("[");
+        for(int i = 0; i < uidList.size(); i++) {
+            stringBuilder.append("\"");
+            stringBuilder.append(uidList.get(i));
+            stringBuilder.append("\"");
+            if(i != uidList.size() - 1) {
+                stringBuilder.append(",");
+            }
+        }
+        stringBuilder.append("]");
+        return stringBuilder.toString();
     }
 
     public static void hideSoftKeyboard(final Context context, final EditText editText){

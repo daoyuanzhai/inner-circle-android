@@ -92,7 +92,7 @@ public class TabsFragment extends Fragment implements OnTabChangeListener {
         tabHost.setCurrentTab(currentTab);
 
         // manually start loading stuff in the first tab
-        updateTab(Constants.SETTINGS_TAG, R.id.settingsTab);
+        updateTab(Constants.NEWS_TAG, R.id.newsTab);
     }
 
     @Override

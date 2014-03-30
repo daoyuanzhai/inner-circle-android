@@ -13,11 +13,12 @@ public class Constants {
     public static final String REFRESH_ACCESS_TOKEN_API = "refreshAccessToken";
     public static final String SET_GENDER_API = "setGender";
     public static final String SET_USERNAME_API = "setUsername";
-    public static final String GET_USER_ACCOUNT_API = "getUserAccount";
+    public static final String GET_USER_ACCOUNT_API = "getUserAccounts";
     public static final String FILE_UPLOAD_API = "fileUpload";
 
     // HTTP Request Params
-    public static final String SERVICES_CONSOLE = "http://192.241.202.169:8080/ServicesConsole/";
+    // public static final String SERVICES_CONSOLE = "http://192.241.202.169:8080/ServicesConsole/";
+    public static final String SERVICES_CONSOLE = "http://192.168.0.18:8080/ServicesConsole/";
     public static final String UID = "uid";
     public static final String ACCESS_TOKEN = "accessToken";
     public static final String REFRESH_TOKEN = "refreshToken";
@@ -28,14 +29,17 @@ public class Constants {
     public static final String USERNAME = "username";
     public static final String FILE = "file";
     public static final String FILENAME = "filename";
+    public final static String OTHER_UIDS = "otherUids";
+
+    // JSON Params
+    public final static String USER_LIST = "userList";
 
     public static final String IMAGE_USAGE = "imageUsage";
-    public static final String IMAGE_USAGE_FOR_NEWS = "forNews";
-    public static final String IMAGE_USAGE_FOR_TALKS = "forTalks";
-    public static final String IMAGE_USAGE_FOR_SETTINGS = "forSettings";
+    public static final int IMAGE_USAGE_FOR_NEWS = 3;
+    public static final int IMAGE_USAGE_FOR_TALKS = 2;
+    public static final int IMAGE_USAGE_FOR_SETTINGS = 1;
 
-    public static final String REQUEST_VIP_CODE = "VIPCode";
-    public static final String RESPONSE_VIP_CODE = "vipcode";
+    public static final String VIP_CODE = "vipCode";
 
     // HTTP Response Params
     public static final String STATUS = "status";
@@ -54,6 +58,9 @@ public class Constants {
     public static int INTENT_CODE_REQUEST_PICTURE = 4;
     public static int INTENT_CODE_CROP_PICTURE = 5;
     public static int INTENT_CODE_REQUEST_CAMERA = 6;
+
+    // Intent Params
+    public static String IS_FROM_VENEZIA = "isFromVenezia";
 
     // Tab Tags
     public static final String NEWS_TAG = "newsTabTag";

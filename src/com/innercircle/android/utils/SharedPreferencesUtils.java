@@ -33,7 +33,7 @@ public class SharedPreferencesUtils {
         editor.putString(Constants.PASSWORD, user.getPassword());
         editor.putString(Constants.GENDER, String.valueOf(user.getGender()));
         editor.putString(Constants.USERNAME, user.getUsername());
-        editor.putString(Constants.REQUEST_VIP_CODE, user.getVIPCode());
+        editor.putString(Constants.VIP_CODE, user.getVIPCode());
         editor.commit();
         Log.v(TAG, "user profile has been saved in the SharedPreferneces");
     }
@@ -45,7 +45,7 @@ public class SharedPreferencesUtils {
         final String password = sharedPreferences.getString(Constants.PASSWORD, null);
         final char gender = sharedPreferences.getString(Constants.GENDER, "?").charAt(0);
         final String username = sharedPreferences.getString(Constants.USERNAME, null);
-        final String VIPCode = sharedPreferences.getString(Constants.REQUEST_VIP_CODE, null);
+        final String VIPCode = sharedPreferences.getString(Constants.VIP_CODE, null);
 
         final InnerCircleUser user = (new InnerCircleUser.Builder())
                 .setId(uid)

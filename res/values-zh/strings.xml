@@ -40,4 +40,7 @@
     <string name="me_tab_label">设置</string>
 
     <string name="insertSDCard">请加入SD卡，否则应用将不能显示图片</string>
+    <string name="logoutButton">退出</string>
+
+    <string name="newsTabTitle">娱乐新消息</string>
 </resources>

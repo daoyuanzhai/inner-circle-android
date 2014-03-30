@@ -95,8 +95,7 @@ public class RegisterActivity extends FragmentActivity{
         Log.v(TAG, "requestCode: " + requestCode);
         Log.v(TAG, "resultCode: " + resultCode);
 
-        final boolean isLogin = SharedPreferencesUtils.getLoginStatuFromPreferences(getApplicationContext());
-        if (resultCode == RESULT_OK && isLogin) {
+        if (resultCode == RESULT_OK && null != data && data.getExtras().getBoolean(Constants.IS_FROM_VENEZIA)) {
             setResult(RESULT_OK);
             finish();
         }
@@ -138,7 +137,7 @@ public class RegisterActivity extends FragmentActivity{
                         .setAPI(Constants.REGISTER_API)
                         .setNameValuePair(Constants.EMAIL, email)
                         .setNameValuePair(Constants.PASSWORD, password)
-                        .setNameValuePair(Constants.REQUEST_VIP_CODE, VIPCode)
+                        .setNameValuePair(Constants.VIP_CODE, VIPCode)
                         .build();
                 response = HttpRequestUtils.registerRequest(RegisterActivity.this, request);
                 mainHandler.post(responseCallback);

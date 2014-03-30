@@ -1,5 +1,8 @@
 package com.innercircle.android;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,6 +19,7 @@ import com.innercircle.android.model.InnerCircleRequest;
 import com.innercircle.android.model.InnerCircleResponse;
 import com.innercircle.android.model.InnerCircleToken;
 import com.innercircle.android.model.InnerCircleUser;
+import com.innercircle.android.model.InnerCircleUserList;
 import com.innercircle.android.thread.HandlerThreadPoolManager;
 import com.innercircle.android.utils.Constants;
 import com.innercircle.android.utils.SharedPreferencesUtils;
@@ -60,7 +64,7 @@ public class LoginActivity extends FragmentActivity {
                 final InnerCircleResponse.Status status = response.getStatus();
                 Log.v(TAG, "getUserAccount response status: " + status.toString());
                 if (status == InnerCircleResponse.Status.SUCCESS) {
-                    user = (InnerCircleUser) response.getData();
+                    user = ((InnerCircleUserList) response.getData()).getUserList().get(0);
 
                     SharedPreferencesUtils.saveUserToPreferences(getApplicationContext(), user);
                     SharedPreferencesUtils.saveTokenToPreferences(getApplicationContext(), token);
@@ -92,6 +96,7 @@ public class LoginActivity extends FragmentActivity {
         textViewError.setVisibility(View.INVISIBLE);
 
         // if a user profile already exists, populate the email so save user some typing
+        user = SharedPreferencesUtils.getUserFromPreferences(getApplicationContext());
         if (null == user) {
             user = SharedPreferencesUtils.getUserFromPreferences(getApplicationContext());
         }
@@ -140,7 +145,11 @@ public class LoginActivity extends FragmentActivity {
                     request.setNameValuePair(Constants.UID, token.getUid());
                     request.setNameValuePair(Constants.ACCESS_TOKEN, token.getAccessToken());
 
-                    response = HttpRequestUtils.getUserAccountRequest(getApplicationContext(), request);
+                    final List<String> uidList = new LinkedList<String>();
+                    uidList.add(token.getUid());
+                    request.setNameValuePair(Constants.OTHER_UIDS, Utils.uidJSONArrayBuilder(uidList));
+
+                    response = HttpRequestUtils.getUserAccountsRequest(getApplicationContext(), request);
                 }
                 mainHandler.post(responseCallback);
             }

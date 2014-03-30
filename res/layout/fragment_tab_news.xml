@@ -1,15 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
-    <TextView
-        android:id="@+id/text"
-        android:text="this is news tab"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textStyle="bold"
-        android:textColor="@drawable/tab_text_selector"/>
 
-</LinearLayout>
+    <RelativeLayout
+        android:id="@+id/layoutNewsHeader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:background="@drawable/tab_selector" >
+
+        <ImageButton
+            android:id="@+id/imageButtonRefreshNews"
+            android:src="@drawable/refresh_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:layout_alignParentLeft="true"
+            android:paddingLeft="5dp"
+            android:paddingTop="5dp"
+            android:contentDescription="@string/desc" />
+        <TextView
+            android:id="@+id/textViewNewsTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="8dp"
+            android:textSize="20sp"
+            android:layout_centerHorizontal="true"
+            android:textColor="@drawable/tab_text_selector"
+            android:text="@string/newsTabTitle" />
+        <ProgressBar
+            android:id="@+id/progressBarCreateProfile"
+            android:maxWidth="1dp"
+            android:maxHeight="1dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/textViewNewsTitle" />
+        <ImageButton
+            android:id="@+id/imageButtonWriteNews"
+            android:src="@drawable/write_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:paddingRight="5dp"
+            android:paddingTop="5dp"
+            android:layout_alignParentRight="true"
+            android:contentDescription="@string/desc" />
+    </RelativeLayout>
+    <ListView
+        android:id="@+id/listViewNews"
+        android:layout_below="@id/layoutNewsHeader"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+</RelativeLayout>

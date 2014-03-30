@@ -3,6 +3,8 @@ package com.innercircle.android.http;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.http.HttpResponse;
@@ -16,6 +18,7 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -27,6 +30,7 @@ import com.innercircle.android.model.InnerCircleRequest;
 import com.innercircle.android.model.InnerCircleResponse;
 import com.innercircle.android.model.InnerCircleToken;
 import com.innercircle.android.model.InnerCircleUser;
+import com.innercircle.android.model.InnerCircleUserList;
 import com.innercircle.android.utils.Constants;
 import com.innercircle.android.utils.SharedPreferencesUtils;
 
@@ -134,9 +138,9 @@ public class HttpRequestUtils {
         return parseJSONToUser(context, responseJSON);
     }
 
-    public static InnerCircleResponse getUserAccountRequest(final Context context, final InnerCircleRequest request) {
+    public static InnerCircleResponse getUserAccountsRequest(final Context context, final InnerCircleRequest request) {
         final JSONObject responseJSON = fireRequest(context, request);
-        return parseJSONToUser(context, responseJSON);
+        return parseJSONToUsers(context, responseJSON);
     }
 
     public static InnerCircleResponse fileUploadRequest(final Context context, final InnerCircleRequest request, final Uri uri) {
@@ -219,6 +223,52 @@ public class HttpRequestUtils {
         }
     }
 
+    private static InnerCircleResponse parseJSONToUsers(final Context context, final JSONObject responseJSON) {
+        final InnerCircleResponse response = new InnerCircleResponse();
+        if (null == responseJSON) {
+            response.setStatus(InnerCircleResponse.Status.FAILED);
+            return response;
+        }
+
+        InnerCircleResponse.Status status;
+        try {
+            status = InnerCircleResponse.Status.valueOf(responseJSON.getString(Constants.STATUS));
+
+            if (status == InnerCircleResponse.Status.SUCCESS) {
+                final JSONObject dataJSON = responseJSON.getJSONObject(Constants.DATA);
+                final String uid = dataJSON.getString(Constants.UID);
+
+                final JSONArray userArray = dataJSON.getJSONArray(Constants.USER_LIST);
+                final List<InnerCircleUser> userList = new LinkedList<InnerCircleUser>();
+                for (int i = 0; i < userArray.length(); i++) {
+                    JSONObject userObject = userArray.getJSONObject(i);
+                    InnerCircleUser user = (new InnerCircleUser.Builder())
+                            .setId(userObject.getString(Constants.UID))
+                            .setEmail(userObject.getString(Constants.EMAIL))
+                            .setPassword(userObject.getString(Constants.PASSWORD))
+                            .setGender(userObject.getString(Constants.GENDER).charAt(0))
+                            .setVIPCode(userObject.getString(Constants.VIP_CODE))
+                            .build();
+                    if (!JSONObject.NULL.equals(userObject.get(Constants.USERNAME))) {
+                        user.setUsername(userObject.getString(Constants.USERNAME));
+                    }
+                    userList.add(user);
+                }
+                final InnerCircleUserList users = new InnerCircleUserList();
+                users.setUid(uid);
+                users.setUserList(userList);
+                response.setData(users);
+            }
+            response.setStatus(status);
+            return response;
+        } catch (JSONException e) {
+            Log.e(TAG, e.toString());
+            status = InnerCircleResponse.Status.FAILED;
+            response.setStatus(status);
+            return response;
+        }
+    }
+
     private static InnerCircleResponse parseJSONToUser(final Context context, final JSONObject responseJSON) {
         final InnerCircleResponse response = new InnerCircleResponse();
         if (null == responseJSON) {
@@ -237,7 +287,7 @@ public class HttpRequestUtils {
                         .setEmail(dataJSON.getString(Constants.EMAIL))
                         .setPassword(dataJSON.getString(Constants.PASSWORD))
                         .setGender(dataJSON.getString(Constants.GENDER).charAt(0))
-                        .setVIPCode(dataJSON.getString(Constants.RESPONSE_VIP_CODE))
+                        .setVIPCode(dataJSON.getString(Constants.VIP_CODE))
                         .build();
                 if (!JSONObject.NULL.equals(dataJSON.get(Constants.USERNAME))) {
                     user.setUsername(dataJSON.getString(Constants.USERNAME));
