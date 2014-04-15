@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+    <RelativeLayout
+        android:id="@+id/layoutNewsHeader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/tab_selector" >
+        <TextView
+            android:id="@+id/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/publishNewsNow"
+            android:textStyle="bold"
+            android:textSize="12sp"
+            android:textColor="@drawable/tab_text_selector"
+            android:gravity="center_horizontal"
+            android:drawableTop="@drawable/write_icon"
+            android:padding="5dp"
+            android:layout_alignParentRight="true"/>
+    </RelativeLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <EditText
+                android:id="@+id/editTextNewsContent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="10dp"
+                android:ems="10"
+                android:hint="@string/publishNewsHint"
+                android:inputType="textMultiLine" >
+                <requestFocus />
+            </EditText>
+            <ImageButton
+                android:id="@+id/imageButtonPic1"
+                android:onClick="onClickAddNewsPic"
+                android:src="@drawable/pick_image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/editTextNewsContent"
+                android:layout_alignParentLeft="true"
+                android:paddingTop="10dp"
+                android:paddingLeft="20dp"
+                android:paddingBottom="10dp"
+                android:background="@null"
+                android:contentDescription="@string/desc" />
+            <ImageButton
+                android:id="@+id/imageButtonPic2"
+                android:onClick="onClickAddNewsPic"
+                android:src="@drawable/pick_image"
+                android:visibility="invisible"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@id/editTextNewsContent"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:background="@null"
+                android:contentDescription="@string/desc" />
+            <ImageButton
+                android:id="@+id/imageButtonPic3"
+                android:onClick="onClickAddNewsPic"
+                android:src="@drawable/pick_image"
+                android:visibility="invisible"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_below="@id/editTextNewsContent"
+                android:paddingTop="10dp"
+                android:paddingRight="20dp"
+                android:paddingBottom="10dp"
+                android:background="@null"
+                android:contentDescription="@string/desc" />
+            <ImageButton
+                android:id="@+id/imageButtonPic4"
+                android:onClick="onClickAddNewsPic"
+                android:src="@drawable/pick_image"
+                android:visibility="invisible"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_below="@id/imageButtonPic1"
+                android:paddingLeft="20dp"
+                android:background="@null"
+                android:contentDescription="@string/desc" />
+            <ImageButton
+                android:id="@+id/imageButtonPic5"
+                android:onClick="onClickAddNewsPic"
+                android:src="@drawable/pick_image"
+                android:visibility="invisible"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@id/imageButtonPic2"
+                android:background="@null"
+                android:contentDescription="@string/desc" />
+            <ImageButton
+                android:id="@+id/imageButtonPic6"
+                android:onClick="onClickAddNewsPic"
+                android:src="@drawable/pick_image"
+                android:visibility="invisible"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_below="@id/imageButtonPic3"
+                android:paddingRight="20dp"
+                android:background="@null"
+                android:contentDescription="@string/desc" />
+            <TextView
+                android:id="@+id/textViewPublishNewsError"
+                android:visibility="invisible"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_below="@id/imageButtonPic6"
+	            android:paddingTop="10dp"
+	            android:layout_centerHorizontal="true"
+	            android:textColor="@color/opaque_red" />
+        </RelativeLayout>
+    </ScrollView>
+</LinearLayout>

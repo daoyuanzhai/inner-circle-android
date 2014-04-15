@@ -44,5 +44,7 @@
 
     <string name="logoutButton">Logout</string>
 
-    <string name="newsTabTitle">News</string>
+    <string name="newsTabTitle">Inner Circle News</string>
+    <string name="publishNewsNow">Send</string>
+    <string name="publishNewsHint">What you want to share with the circle. . .</string>
 </resources>

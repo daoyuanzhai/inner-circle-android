@@ -43,4 +43,6 @@
     <string name="logoutButton">退出</string>
 
     <string name="newsTabTitle">娱乐新消息</string>
+    <string name="publishNewsNow">发送</string>
+    <string name="publishNewsHint">与娱乐圈分享此刻新状态. . .</string>
 </resources>

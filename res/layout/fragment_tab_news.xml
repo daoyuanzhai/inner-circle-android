@@ -40,6 +40,7 @@
             android:layout_toRightOf="@id/textViewNewsTitle" />
         <ImageButton
             android:id="@+id/imageButtonWriteNews"
+            android:onClick="onClickCreateNews"
             android:src="@drawable/write_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

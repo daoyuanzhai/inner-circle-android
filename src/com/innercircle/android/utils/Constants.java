@@ -54,10 +54,11 @@ public class Constants {
     public static int INTENT_CODE_REGISTER = 1;
     public static int INTENT_CODE_CREATE_PROFILE = 2;
     public static int INTENT_CODE_VENEZIA = 3;
+    public static int INTENT_CODE_PUBLISH_NEWS = 4;
 
-    public static int INTENT_CODE_REQUEST_PICTURE = 4;
-    public static int INTENT_CODE_CROP_PICTURE = 5;
-    public static int INTENT_CODE_REQUEST_CAMERA = 6;
+    public static int INTENT_CODE_REQUEST_PICTURE = 5;
+    public static int INTENT_CODE_CROP_PICTURE = 6;
+    public static int INTENT_CODE_REQUEST_CAMERA = 7;
 
     // Intent Params
     public static String IS_FROM_VENEZIA = "isFromVenezia";

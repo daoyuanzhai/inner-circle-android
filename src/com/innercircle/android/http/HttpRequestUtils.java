@@ -143,6 +143,39 @@ public class HttpRequestUtils {
         return parseJSONToUsers(context, responseJSON);
     }
 
+    public static InnerCircleResponse getCounterRequest(final Context context, final InnerCircleRequest request) {
+        final JSONObject responseJSON = fireRequest(context, request);
+
+        final InnerCircleResponse response = new InnerCircleResponse();
+        if (null == responseJSON) {
+            response.setStatus(InnerCircleResponse.Status.FAILED);
+            return response;
+        }
+
+        InnerCircleResponse.Status status;
+        try {
+            status = InnerCircleResponse.Status.valueOf(responseJSON.getString(Constants.STATUS));
+
+            if (status == InnerCircleResponse.Status.SUCCESS) {
+                final JSONObject dataJSON = responseJSON.getJSONObject(Constants.DATA);
+                final InnerCircleToken token = (new InnerCircleToken.Builder())
+                        .setUid(dataJSON.getString(Constants.UID))
+                        .setAccessToken(dataJSON.getString(Constants.ACCESS_TOKEN))
+                        .setRefreshToken(dataJSON.getString(Constants.REFRESH_TOKEN))
+                        .setTimestamp(dataJSON.getLong(Constants.TIMESTAMP))
+                        .build();
+                response.setData(token);
+            }
+            response.setStatus(status);
+            return response;
+        } catch (JSONException e) {
+            Log.e(TAG, e.toString());
+            status = InnerCircleResponse.Status.FAILED;
+            response.setStatus(status);
+            return response;
+        }
+    }
+
     public static InnerCircleResponse fileUploadRequest(final Context context, final InnerCircleRequest request, final Uri uri) {
         final JSONObject responseJSON = fireRequest(context, request, uri);
         final InnerCircleResponse response = new InnerCircleResponse();

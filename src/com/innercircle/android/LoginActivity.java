@@ -40,6 +40,7 @@ public class LoginActivity extends FragmentActivity {
 
     private InnerCircleUser user;
     private InnerCircleToken token;
+    private int newsCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -136,6 +137,7 @@ public class LoginActivity extends FragmentActivity {
                         .setNameValuePair(Constants.PASSWORD, password)
                         .build();
                 response = HttpRequestUtils.loginRequest(getApplicationContext(), request);
+                Log.v(TAG, "login response status: " + response.getStatus().toString());
 
                 if (response.getStatus() == InnerCircleResponse.Status.SUCCESS) {
                     token = (InnerCircleToken) response.getData();
@@ -150,6 +152,11 @@ public class LoginActivity extends FragmentActivity {
                     request.setNameValuePair(Constants.OTHER_UIDS, Utils.uidJSONArrayBuilder(uidList));
 
                     response = HttpRequestUtils.getUserAccountsRequest(getApplicationContext(), request);
+                    Log.v(TAG, "getUserAccount response status: " + response.getStatus().toString());
+
+                    if (response.getStatus() == InnerCircleResponse.Status.SUCCESS) {
+                        user = ((InnerCircleUserList) response.getData()).getUserList().get(0);
+                    }
                 }
                 mainHandler.post(responseCallback);
             }
