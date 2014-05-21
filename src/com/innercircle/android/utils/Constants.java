@@ -15,11 +15,14 @@ public class Constants {
     public static final String SET_USERNAME_API = "setUsername";
     public static final String GET_USER_ACCOUNT_API = "getUserAccounts";
     public static final String FILE_UPLOAD_API = "fileUpload";
+    public static final String GET_COUNTER_API = "getCounter";
 
     // HTTP Request Params
     // public static final String SERVICES_CONSOLE = "http://192.241.202.169:8080/ServicesConsole/";
     public static final String SERVICES_CONSOLE = "http://192.168.0.18:8080/ServicesConsole/";
     public static final String UID = "uid";
+    public static final String RECEIVER_UID = "receiverUid";
+    public final static String OTHER_UIDS = "otherUids";
     public static final String ACCESS_TOKEN = "accessToken";
     public static final String REFRESH_TOKEN = "refreshToken";
     public static final String TIMESTAMP = "timestamp";
@@ -29,7 +32,7 @@ public class Constants {
     public static final String USERNAME = "username";
     public static final String FILE = "file";
     public static final String FILENAME = "filename";
-    public final static String OTHER_UIDS = "otherUids";
+    public static final String COUNT = "count";
 
     // JSON Params
     public final static String USER_LIST = "userList";
@@ -48,6 +51,7 @@ public class Constants {
     // SharedPreferences
     public static final String TOKEN_PREFERENCE = "tokenPreference";
     public static final String USER_PREFERENCE = "userPreference";
+    public static final String COUNTER_PREFERENCE = "counterPreference";
     public static final String LOGIN_STATUS = "loginStatus";
 
     // Intent Request Code

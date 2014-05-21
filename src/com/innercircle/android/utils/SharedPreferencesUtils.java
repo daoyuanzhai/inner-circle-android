@@ -84,4 +84,17 @@ public class SharedPreferencesUtils {
                 .build();
         return token;
     }
+
+    public static void saveNewsCountToPreferences(final Context context, final int count) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.COUNTER_PREFERENCE, Context.MODE_PRIVATE);
+        Editor editor = sharedPreferences.edit();
+        editor.putInt(Constants.COUNT, count);
+        editor.commit();
+        Log.v(TAG, "user news count has been saved in the SharedPreferneces");
+    }
+
+    public static int getNewsCountFromPreferences(final Context context) {
+        final SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.COUNTER_PREFERENCE, Context.MODE_PRIVATE);
+        return sharedPreferences.getInt(Constants.COUNT, 0);
+    }
 }

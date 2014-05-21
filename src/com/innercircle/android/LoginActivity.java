@@ -15,6 +15,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.innercircle.android.http.HttpRequestUtils;
+import com.innercircle.android.model.InnerCircleCounter;
 import com.innercircle.android.model.InnerCircleRequest;
 import com.innercircle.android.model.InnerCircleResponse;
 import com.innercircle.android.model.InnerCircleToken;
@@ -65,10 +66,11 @@ public class LoginActivity extends FragmentActivity {
                 final InnerCircleResponse.Status status = response.getStatus();
                 Log.v(TAG, "getUserAccount response status: " + status.toString());
                 if (status == InnerCircleResponse.Status.SUCCESS) {
-                    user = ((InnerCircleUserList) response.getData()).getUserList().get(0);
+                    newsCount = ((InnerCircleCounter) response.getData()).getCount();
 
                     SharedPreferencesUtils.saveUserToPreferences(getApplicationContext(), user);
                     SharedPreferencesUtils.saveTokenToPreferences(getApplicationContext(), token);
+                    SharedPreferencesUtils.saveNewsCountToPreferences(getApplicationContext(), newsCount);
 
                     launchNextActivity();
                 } else if (status == InnerCircleResponse.Status.EMAIL_PASSWORD_MISMATCH) {
@@ -156,6 +158,11 @@ public class LoginActivity extends FragmentActivity {
 
                     if (response.getStatus() == InnerCircleResponse.Status.SUCCESS) {
                         user = ((InnerCircleUserList) response.getData()).getUserList().get(0);
+
+                        // after getting the user profile, fire a third call to get user news count
+                        request.setAPI(Constants.GET_COUNTER_API);
+                        request.setNameValuePair(Constants.RECEIVER_UID, "");
+                        response = HttpRequestUtils.getCounterRequest(getApplicationContext(), request);
                     }
                 }
                 mainHandler.post(responseCallback);

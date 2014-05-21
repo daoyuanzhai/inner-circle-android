@@ -5,6 +5,8 @@ import java.io.File;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -20,7 +22,6 @@ import android.widget.TextView;
 
 import com.innercircle.android.model.InnerCircleToken;
 import com.innercircle.android.utils.Constants;
-import com.innercircle.android.utils.MediaStoreUtils;
 import com.innercircle.android.utils.SharedPreferencesUtils;
 import com.innercircle.android.utils.Utils;
 
@@ -32,6 +33,7 @@ public class PublishNewsActivity extends FragmentActivity {
     private ImageButton[] imageButtonArray;
     private int imageIndex;
     private InnerCircleToken token;
+    private int newsCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,12 +56,36 @@ public class PublishNewsActivity extends FragmentActivity {
         imageIndex = 0;
 
         token = SharedPreferencesUtils.getTokenFromPreferences(getApplicationContext());
+        newsCount = SharedPreferencesUtils.getNewsCountFromPreferences(getApplicationContext());
     }
 
     @Override
     public void onBackPressed(){
         setResult(RESULT_OK);
         finish();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.v(TAG, "requestCode: " + requestCode);
+        Log.v(TAG, "resultCode: " + resultCode);
+
+        if (resultCode == RESULT_OK || requestCode == Constants.INTENT_CODE_REQUEST_PICTURE) {
+        	Uri selectedImage = data.getData();
+            String[] filePathColumn = {MediaStore.Images.Media.DATA};
+            Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
+            cursor.moveToFirst();
+
+            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+            String picturePath = cursor.getString(columnIndex);
+            cursor.close();
+
+            imageButtonArray[imageIndex++].setImageBitmap(BitmapFactory.decodeFile(picturePath));
+            imageButtonArray[imageIndex].setVisibility(View.VISIBLE);
+        } else if (resultCode == RESULT_OK || requestCode == Constants.INTENT_CODE_REQUEST_PICTURE) {
+        	
+        }
     }
 
     public void onClickAddNewsPic(View v) {
@@ -71,12 +97,14 @@ public class PublishNewsActivity extends FragmentActivity {
 
         builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
+            	Intent intent;
                 switch (which) {
                 case 0:
-                    startActivityForResult(MediaStoreUtils.getPickImageIntent(PublishNewsActivity.this), Constants.INTENT_CODE_REQUEST_PICTURE);
+                    intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    startActivityForResult(intent, Constants.INTENT_CODE_REQUEST_PICTURE);
                     break;
                 case 1:
-                    Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
+                    intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                     startActivityForResult(intent, Constants.INTENT_CODE_REQUEST_CAMERA);
                     break;
                 }

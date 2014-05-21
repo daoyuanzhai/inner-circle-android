@@ -26,6 +26,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
+import com.innercircle.android.model.InnerCircleCounter;
 import com.innercircle.android.model.InnerCircleRequest;
 import com.innercircle.android.model.InnerCircleResponse;
 import com.innercircle.android.model.InnerCircleToken;
@@ -158,13 +159,12 @@ public class HttpRequestUtils {
 
             if (status == InnerCircleResponse.Status.SUCCESS) {
                 final JSONObject dataJSON = responseJSON.getJSONObject(Constants.DATA);
-                final InnerCircleToken token = (new InnerCircleToken.Builder())
+                final InnerCircleCounter counter = (new InnerCircleCounter.Builder())
                         .setUid(dataJSON.getString(Constants.UID))
-                        .setAccessToken(dataJSON.getString(Constants.ACCESS_TOKEN))
-                        .setRefreshToken(dataJSON.getString(Constants.REFRESH_TOKEN))
-                        .setTimestamp(dataJSON.getLong(Constants.TIMESTAMP))
+                        .setReceiverUid(dataJSON.getString(Constants.RECEIVER_UID))
+                        .setCount(dataJSON.getInt(Constants.COUNT))
                         .build();
-                response.setData(token);
+                response.setData(counter);
             }
             response.setStatus(status);
             return response;
